@@ -1,4 +1,4 @@
-namespace JsonCallBacks.Models.Notifications
+namespace Core.Models.Notifications
 {
     public class SystemProperties
     {

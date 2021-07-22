@@ -1,6 +1,6 @@
 using System;
+using Core.Models.Notifications;
 using JsonCallBacks.BaseCallBacks;
-using JsonCallBacks.Models.Notifications;
 
 namespace JsonCallBacks.JsonNotification
 {
