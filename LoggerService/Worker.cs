@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.CallBacks;
+using JsonCallBacks.JsonNotification;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SocketIOClient;
 
 namespace LoggerService
 {
@@ -19,11 +23,19 @@ namespace LoggerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            var callBacks = new List<Notifier<string>>() {new SystemPropertiesNotification(properties =>
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
+                _logger.LogInformation(properties.OS);
+            })};
+            
+            var sc = new SocketIO("http://localhost:5000", new SocketIOOptions() {EIO = 4});
+
+            foreach (var callBack in callBacks)
+            {
+                sc.On(callBack.Identifier,response => callBack.CallBack(response.GetValue().GetRawText()));
             }
+            
+            await sc.ConnectAsync();
         }
     }
 }
